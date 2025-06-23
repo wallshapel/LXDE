@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Mostrar Escritorio
+Exec=xdotool key Ctrl+Alt+d
+Icon=desktop
+Terminal=false
+Categories=Utility;
+NoDisplay=true

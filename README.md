@@ -1,3 +1,4 @@
+
 # 💻 Personalización y mejoras de LXDE
 
 ✨ Este repositorio contiene una versión **personalizada y mejorada** del archivo `lxde-rc.xml`, diseñada para maximizar la productividad en entornos LXDE.
@@ -14,11 +15,11 @@ Acción
 
 Atajo
 
-🔕 Minimizar ventana activa
+🗕 Minimizar ventana activa
 
 `Super` + `PgDn`
 
-🔖 Maximizar ventana activa
+🗖 Maximizar ventana activa
 
 `Super` + `PgUp`
 
@@ -36,7 +37,7 @@ Atajo
 
 `AudioMute` (tecla dedicada)
 
-🔈 Subir volumen
+🔊 Subir volumen
 
 `AudioRaiseVolume`
 
@@ -48,35 +49,35 @@ Atajo
 
 `AudioPlay`
 
-### 📊 Multimonitor y Ajuste de Ventanas
+### 📺 Multimonitor y Ajuste de Ventanas
 
 Acción
 
 Atajo
 
-→ Mandar ventana al monitor derecho
+➡️ Mandar ventana al monitor derecho
 
-`Ctrl` + `Alt` + `Shift` + →
+`Ctrl` + `Alt` + `Shift` + ➡️
 
-← Mandar ventana al monitor izquierdo
+⬅️ Mandar ventana al monitor izquierdo
 
-`Ctrl` + `Alt` + `Shift` + ←
+`Ctrl` + `Alt` + `Shift` + ⬅️
 
-→ Ajustar ventana a la derecha
+➡️ Ajustar ventana a la derecha
 
-`Super` + →
+`Super` + ➡️
 
-← Ajustar ventana a la izquierda
+⬅️ Ajustar ventana a la izquierda
 
-`Super` + ←
+`Super` + ⬅️
 
-↑ Ajustar ventana arriba
+⬆️ Ajustar ventana arriba
 
-`Super` + ↑
+`Super` + ⬆️
 
-↓ Ajustar ventana abajo
+⬇️ Ajustar ventana abajo
 
-`Super` + ↓
+`Super` + ⬇️
 
 ### ⚙️ Lanzadores
 
@@ -84,7 +85,7 @@ Aplicación
 
 Atajo
 
-=⃣ Calculadora
+🧮 Calculadora
 
 `Ctrl` + `Alt` + `C`
 
@@ -94,7 +95,7 @@ Atajo
 
 ----------
 
-## 📄 Escritorios Virtuales
+## 📂 Escritorios Virtuales
 
 Puedes aumentar o disminuir el número de escritorios modificando el valor de:
 
@@ -114,9 +115,9 @@ En la sección correspondiente del archivo `lxde-rc.xml`.
 
 ----------
 
-## 🔧 Scripts Personalizados
+## 🧰 Scripts Personalizados
 
-Los  scripts `.sh` deben ubicarse en:
+Los siguientes scripts `.sh` (vistos en la estructura del repositorio) deben ubicarse en:
 
 ```
 ~/.local/bin/
@@ -139,15 +140,57 @@ sudo pacman -S xdotool xorg-xrandr
 
 ----------
 
+## 🖥️ Mostrar Escritorio (toggle real)
+
+Se reemplazó el botón de "Minimizar todas" que viene por defecto en LXDE, ya que no restaura correctamente las ventanas. En su lugar, se añadió un lanzador más funcional:
+
+### 📁 Ubicación
+
+```
+~/.local/share/applications/show-desktop-toggle.desktop
+
+```
+
+### 📄 Contenido del archivo
+
+```ini
+[Desktop Entry]
+Type=Application
+Name=Mostrar Escritorio
+Exec=xdotool key Ctrl+Alt+d
+Icon=desktop
+Terminal=false
+Categories=Utility;
+NoDisplay=true
+
+```
+
+### 🛠️ Instrucciones
+
+1.  Cambia temporalmente `NoDisplay=true` a `NoDisplay=false`.
+    
+2.  Ve a `Preferencias del panel` → `Miniaplicaciones del panel` → `Barra de aplicaciones` → `Preferencias`.
+    
+3.  Busca en la categoría **Accesorios / Utility** el lanzador **Mostrar Escritorio** y añádelo.
+    
+4.  Luego, puedes volver a dejar `NoDisplay=true` si no quieres que aparezca en el menú.
+    
+5.  Elimina el botón original de minimizar todas, ya que este nuevo reemplazo es más funcional y reversible.
+    
+
+----------
+
 ## 📁 Estructura del Repositorio
 
 ```
 .
 ├── lxde-rc.xml
 ├── README.md
-└── ~/.local/bin/
-    ├── move_window_left.sh
-    └── move_window_right.sh
+├── ~/.local/bin/
+│   ├── move_window_left.sh
+│   └── move_window_right.sh
+└── ~/.local/share/applications/
+    └── show-desktop-toggle.desktop
 
 ```
 
@@ -164,7 +207,9 @@ sudo pacman -S xdotool xorg-xrandr
     
     ```
     
-3.  Reinicia LXDE o ejecuta:
+3.  Coloca el archivo `.desktop` en `~/.local/share/applications/`.
+    
+4.  Reinicia LXDE o ejecuta:
     
     ```bash
     openbox --reconfigure
@@ -177,7 +222,3 @@ sudo pacman -S xdotool xorg-xrandr
 ## 🚀 Tu escritorio, a otro nivel.
 
 Disfruta una experiencia LXDE más fluida, potente y personalizada. ✨
-
-----------
-
-_Hecho con ❤️ por Legato_
