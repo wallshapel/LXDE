@@ -1,99 +1,71 @@
-
 # 💻 Personalización y mejoras de LXDE
 
 ✨ Este repositorio contiene una versión **personalizada y mejorada** del archivo `lxde-rc.xml`, diseñada para maximizar la productividad en entornos LXDE.
 
 > ⚙️ ¡Adiós a las configuraciones por defecto! Dale superpoderes a tu escritorio con atajos bien pensados, scripts útiles y una experiencia más fluida.
 
-----------
+---
+
+## 🔧 Requisitos Previos
+
+- Tener instalado un entorno LXDE.
+- Instalar las siguientes herramientas:
+
+```bash
+sudo pacman -S xdotool xorg-xrandr
+```
+
+---
 
 ## 🧠 Funcionalidades Incluidas
 
-### 🎮 Gestión de Ventanas
+1. Gestión avanzada de ventanas: minimizar, maximizar, restaurar.
+2. Control multimedia desde el teclado.
+3. Envío de ventanas entre monitores y ajuste a bordes.
+4. Lanzadores personalizados (calculadora, terminal).
+5. Mejora en el manejo de escritorios virtuales.
+6. Desactivación de `Alt + clic izquierdo` para compatibilidad con Sublime Text.
+7. Mostrar escritorio con comportamiento toggle real.
+8. Las aplicaciones nuevas se abren automáticamente en el monitor donde se encuentra el cursor.
 
-Acción
+---
 
-Atajo
+## 🎮 Gestión de Ventanas
 
-🗕 Minimizar ventana activa
+| Acción       | Atajo            |
+| ------------ | ---------------- |
+| 🗕 Minimizar | `Super` + `PgDn` |
+| 🗖 Maximizar | `Super` + `PgUp` |
+| 🔳 Restaurar | `Super` + `Home` |
 
-`Super` + `PgDn`
+## 🎵 Control Multimedia
 
-🗖 Maximizar ventana activa
+| Acción                 | Atajo              |
+| ---------------------- | ------------------ |
+| 🔇 Mutear volumen      | `AudioMute`        |
+| 🔊 Subir volumen       | `AudioRaiseVolume` |
+| 🔉 Bajar volumen       | `AudioLowerVolume` |
+| ▶️ Reproducir / Pausar | `AudioPlay`        |
 
-`Super` + `PgUp`
+## 📺 Multimonitor y Ajuste de Ventanas
 
-🔳 Restaurar ventana maximizada
+| Acción                                 | Atajo                         |
+| -------------------------------------- | ----------------------------- |
+| ➡️ Mandar ventana al monitor derecho   | `Ctrl` + `Alt` + `Shift` + ➡️ |
+| ⬅️ Mandar ventana al monitor izquierdo | `Ctrl` + `Alt` + `Shift` + ⬅️ |
+| ➡️ Ajustar a la derecha                | `Super` + ➡️                  |
+| ⬅️ Ajustar a la izquierda              | `Super` + ⬅️                  |
+| ⬆️ Ajustar arriba                      | `Super` + ⬆️                  |
+| ⬇️ Ajustar abajo                       | `Super` + ⬇️                  |
 
-`Super` + `Home`
+## ⚙️ Lanzadores
 
-### 🎵 Control Multimedia
+| Aplicación     | Atajo                |
+| -------------- | -------------------- |
+| 🧮 Calculadora | `Ctrl` + `Alt` + `C` |
+| 💪 Terminal    | `Ctrl` + `Alt` + `T` |
 
-Acción
-
-Atajo
-
-🔇 Mutear volumen
-
-`AudioMute` (tecla dedicada)
-
-🔊 Subir volumen
-
-`AudioRaiseVolume`
-
-🔉 Bajar volumen
-
-`AudioLowerVolume`
-
-▶️ Reproducir / Pausar
-
-`AudioPlay`
-
-### 📺 Multimonitor y Ajuste de Ventanas
-
-Acción
-
-Atajo
-
-➡️ Mandar ventana al monitor derecho
-
-`Ctrl` + `Alt` + `Shift` + ➡️
-
-⬅️ Mandar ventana al monitor izquierdo
-
-`Ctrl` + `Alt` + `Shift` + ⬅️
-
-➡️ Ajustar ventana a la derecha
-
-`Super` + ➡️
-
-⬅️ Ajustar ventana a la izquierda
-
-`Super` + ⬅️
-
-⬆️ Ajustar ventana arriba
-
-`Super` + ⬆️
-
-⬇️ Ajustar ventana abajo
-
-`Super` + ⬇️
-
-### ⚙️ Lanzadores
-
-Aplicación
-
-Atajo
-
-🧮 Calculadora
-
-`Ctrl` + `Alt` + `C`
-
-💪 Terminal
-
-`Ctrl` + `Alt` + `T`
-
-----------
+---
 
 ## 📂 Escritorios Virtuales
 
@@ -101,44 +73,58 @@ Puedes aumentar o disminuir el número de escritorios modificando el valor de:
 
 ```xml
 <number>4</number>
-
 ```
 
 En la sección correspondiente del archivo `lxde-rc.xml`.
 
-----------
+---
 
 ## ❌ Mejora de Experiencia con Sublime Text
 
--   Desactivado el gesto `Alt + clic izquierdo` para evitar conflictos con selección múltiple en Sublime Text.
-    
+- Desactivado el gesto `Alt + clic izquierdo` para evitar conflictos con selección múltiple en Sublime Text.
 
-----------
+---
 
 ## 🧰 Scripts Personalizados
 
-Los siguientes scripts `.sh` (vistos en la estructura del repositorio) deben ubicarse en:
+Ubicar todos los siguientes scripts en:
 
 ```
 ~/.local/bin/
-
 ```
 
-> Asegúrate de tener instalados los siguientes paquetes:
-
--   `xrandr`
-    
--   `xdotool`
-    
-
-Puedes instalarlos con:
+Y otorgar permisos de ejecución:
 
 ```bash
-sudo pacman -S xdotool xorg-xrandr
-
+chmod +x ~/.local/bin/*.sh
 ```
 
-----------
+Scripts incluidos:
+
+- `move_window_left.sh`
+- `move_window_right.sh`
+- `window_top_half.sh`
+- `window_bottom_half.sh`
+- `window_left_half.sh`
+- `window_right_half.sh`
+- `smart-launcher.sh`
+- `window_watcher.sh`
+
+Para que `window_watcher.sh` funcione correctamente al inicio del sistema, añade la siguiente línea al archivo:
+
+```
+~/.config/lxsession/LXDE/autostart
+```
+
+```bash
+@/home/<tu_usuario>/.local/bin/window_watcher.sh
+```
+
+> Reemplaza `<tu_usuario>` por tu nombre de usuario real. Luego **reinicia el sistema**.
+
+Este script asegura que **las aplicaciones nuevas se abran centradas en el monitor donde se encuentra el cursor del mouse**.
+
+---
 
 ## 🖥️ Mostrar Escritorio (toggle real)
 
@@ -148,7 +134,6 @@ Se reemplazó el botón de "Minimizar todas" que viene por defecto en LXDE, ya q
 
 ```
 ~/.local/share/applications/show-desktop-toggle.desktop
-
 ```
 
 ### 📄 Contenido del archivo
@@ -162,23 +147,17 @@ Icon=desktop
 Terminal=false
 Categories=Utility;
 NoDisplay=true
-
 ```
 
 ### 🛠️ Instrucciones
 
-1.  Cambia temporalmente `NoDisplay=true` a `NoDisplay=false`.
-    
-2.  Ve a `Preferencias del panel` → `Miniaplicaciones del panel` → `Barra de aplicaciones` → `Preferencias`.
-    
-3.  Busca en la categoría **Accesorios / Utility** el lanzador **Mostrar Escritorio** y añádelo.
-    
-4.  Luego, puedes volver a dejar `NoDisplay=true` si no quieres que aparezca en el menú.
-    
-5.  Elimina el botón original de minimizar todas, ya que este nuevo reemplazo es más funcional y reversible.
-    
+1. Cambia temporalmente `NoDisplay=true` a `NoDisplay=false`.
+2. Ve a `Preferencias del panel` → `Miniaplicaciones del panel` → `Barra de aplicaciones` → `Preferencias`.
+3. Busca en la categoría **Accesorios / Utility** el lanzador **Mostrar Escritorio** y añádelo.
+4. Luego, puedes volver a dejar `NoDisplay=true` si no quieres que aparezca en el menú.
+5. Elimina el botón original de minimizar todas, ya que este nuevo reemplazo es más funcional y reversible.
 
-----------
+---
 
 ## 📁 Estructura del Repositorio
 
@@ -188,37 +167,36 @@ NoDisplay=true
 ├── README.md
 ├── ~/.local/bin/
 │   ├── move_window_left.sh
-│   └── move_window_right.sh
+│   ├── move_window_right.sh
+│   ├── window_top_half.sh
+│   ├── window_bottom_half.sh
+│   ├── window_left_half.sh
+│   ├── window_right_half.sh
+│   ├── smart-launcher.sh
+│   └── window_watcher.sh
 └── ~/.local/share/applications/
     └── show-desktop-toggle.desktop
-
 ```
 
-----------
+---
 
 ## 🚀 Listo para Usar
 
-1.  Reemplaza tu archivo `~/.config/openbox/lxde-rc.xml` con el proporcionado.
-    
-2.  Coloca los scripts en `~/.local/bin/` y otórgales permisos de ejecución:
-    
-    ```bash
-    chmod +x ~/.local/bin/*.sh
-    
-    ```
-    
-3.  Coloca el archivo `.desktop` en `~/.local/share/applications/`.
-    
-4.  Reinicia LXDE o ejecuta:
-    
-    ```bash
-    openbox --reconfigure
-    
-    ```
-    
+1. Reemplaza tu archivo `~/.config/openbox/lxde-rc.xml` con el proporcionado.
+2. Copia todos los scripts en `~/.local/bin/` y otórgales permisos de ejecución.
+3. Coloca el archivo `.desktop` en `~/.local/share/applications/`.
+4. Edita `~/.config/lxsession/LXDE/autostart` y añade la línea para `window_watcher.sh`.
+5. Ejecuta:
 
-----------
+```bash
+openbox --reconfigure
+```
 
-## 🚀 Tu escritorio, a otro nivel.
+6. Reinicia tu sistema para asegurar que todo quede aplicado correctamente.
+
+---
+
+## 🚀 Tu escritorio, a otro nivel
 
 Disfruta una experiencia LXDE más fluida, potente y personalizada. ✨
+

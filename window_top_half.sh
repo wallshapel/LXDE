@@ -1,18 +1,12 @@
+#!/bin/bash
+
 WIN_ID=$(xdotool getactivewindow)
 echo "Ventana activa: $WIN_ID"
 
-# Quitar estado maximizado
-xdotool windowstate --remove MAXIMIZED_VERT --remove MAXIMIZED_HORZ "$WIN_ID"
-sleep 0.2
-
-# Esperar a que la ventana deje de estar maximizada (opcional robustez)
-for i in {1..5}; do
-    WIN_STATE=$(xprop -id "$WIN_ID" _NET_WM_STATE)
-    if [[ "$WIN_STATE" != *"_NET_WM_STATE_MAXIMIZED"* ]]; then
-        break
-    fi
-    sleep 0.1
-done
+echo "Comando Super + Home (tecla por tecla)..."
+xdotool keydown Super
+xdotool key Home
+xdotool keyup Super
 
 # Obtener coordenada X para saber en qué monitor está
 WIN_X=$(xwininfo -id "$WIN_ID" | awk '/Absolute upper-left X:/ {print $NF}')

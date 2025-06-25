@@ -3,9 +3,10 @@
 WIN_ID=$(xdotool getactivewindow)
 echo "Ventana activa: $WIN_ID"
 
-# Restaurar tamaño para poder moverla si está maximizada
-xdotool windowstate --remove MAXIMIZED_VERT --remove MAXIMIZED_HORZ "$WIN_ID"
-sleep 0.1
+echo "Comando Super + Home (tecla por tecla)..."
+xdotool keydown Super
+xdotool key Home
+xdotool keyup Super
 
 # Obtener posición actual del borde izquierdo
 WIN_X=$(xwininfo -id "$WIN_ID" | awk '/Absolute upper-left X:/ {print $NF}')
