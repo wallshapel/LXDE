@@ -144,7 +144,7 @@ Puedes abrir aplicaciones de LibreOffice usando nombres simples desde el lanzado
 
 ### 📌 Pasos necesarios
 
-1. Asegúrate de tener los scripts `word.sh`, `excel.sh`, `point.sh` en `~/.local/bin` con permisos de ejecución.
+1. Asegúrate de tener los scripts `word`, `excel`, `point` en `~/.local/bin` con permisos de ejecución.
 2. Verifica que `~/.local/bin` esté en tu `$PATH`:
 
 ```bash
@@ -214,9 +214,9 @@ NoDisplay=true
 │   ├── window_right_half.sh
 │   ├── smart-launcher.sh
 │   ├── window_watcher.sh
-│   ├── word.sh
-│   ├── excel.sh
-│   └── point.sh
+│   ├── word
+│   ├── excel
+│   └── point
 └── ~/.local/share/applications/
     └── show-desktop-toggle.desktop
 ```
