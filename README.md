@@ -112,9 +112,9 @@ Scripts incluidos:
 - `window_right_half.sh`
 - `smart-launcher.sh`
 - `window_watcher.sh`
-- `word.sh`
-- `excel.sh`
-- `point.sh`
+- `word`
+- `excel`
+- `point`
 
 Para que `window_watcher.sh` funcione correctamente al inicio del sistema, añade la siguiente línea al archivo:
 
