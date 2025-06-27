@@ -12,8 +12,10 @@
 - Instalar las siguientes herramientas:
 
 ```bash
-sudo pacman -S xdotool xorg-xrandr
+sudo pacman -S xdotool xorg-xrandr libreoffice-fresh
 ```
+
+> `libreoffice-fresh` incluye Writer, Calc e Impress.
 
 ---
 
@@ -27,6 +29,7 @@ sudo pacman -S xdotool xorg-xrandr
 6. Desactivación de `Alt + clic izquierdo` para compatibilidad con Sublime Text.
 7. Mostrar escritorio con comportamiento toggle real.
 8. Las aplicaciones nuevas se abren automáticamente en el monitor donde se encuentra el cursor.
+9. Accesos nostálgicos vía runner (`Ctrl + R`) para abrir Word, Excel e Impress.
 
 ---
 
@@ -109,6 +112,9 @@ Scripts incluidos:
 - `window_right_half.sh`
 - `smart-launcher.sh`
 - `window_watcher.sh`
+- `word.sh`
+- `excel.sh`
+- `point.sh`
 
 Para que `window_watcher.sh` funcione correctamente al inicio del sistema, añade la siguiente línea al archivo:
 
@@ -123,6 +129,40 @@ Para que `window_watcher.sh` funcione correctamente al inicio del sistema, añad
 > Reemplaza `<tu_usuario>` por tu nombre de usuario real. Luego **reinicia el sistema**.
 
 Este script asegura que **las aplicaciones nuevas se abran centradas en el monitor donde se encuentra el cursor del mouse**.
+
+---
+
+## 🖱️ Accesos desde Runner (Ctrl + R)
+
+Puedes abrir aplicaciones de LibreOffice usando nombres simples desde el lanzador (runner) de LXDE:
+
+| Comando | Abre                |
+| ------- | ------------------- |
+| `word`  | LibreOffice Writer  |
+| `excel` | LibreOffice Calc    |
+| `point` | LibreOffice Impress |
+
+### 📌 Pasos necesarios
+
+1. Asegúrate de tener los scripts `word.sh`, `excel.sh`, `point.sh` en `~/.local/bin` con permisos de ejecución.
+2. Verifica que `~/.local/bin` esté en tu `$PATH`:
+
+```bash
+echo $PATH
+```
+
+Si no está, añade lo siguiente:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile
+```
+
+3. **Cierra sesión** y vuelve a entrar en LXDE, o reinicia el sistema.
+
+> Esto hará que el runner reconozca correctamente los nuevos comandos.
 
 ---
 
@@ -173,7 +213,10 @@ NoDisplay=true
 │   ├── window_left_half.sh
 │   ├── window_right_half.sh
 │   ├── smart-launcher.sh
-│   └── window_watcher.sh
+│   ├── window_watcher.sh
+│   ├── word.sh
+│   ├── excel.sh
+│   └── point.sh
 └── ~/.local/share/applications/
     └── show-desktop-toggle.desktop
 ```
@@ -186,13 +229,14 @@ NoDisplay=true
 2. Copia todos los scripts en `~/.local/bin/` y otórgales permisos de ejecución.
 3. Coloca el archivo `.desktop` en `~/.local/share/applications/`.
 4. Edita `~/.config/lxsession/LXDE/autostart` y añade la línea para `window_watcher.sh`.
-5. Ejecuta:
+5. Asegúrate de que `~/.local/bin` esté en el `$PATH` (ver sección runner).
+6. Ejecuta:
 
 ```bash
 openbox --reconfigure
 ```
 
-6. Reinicia tu sistema para asegurar que todo quede aplicado correctamente.
+7. Reinicia tu sistema para asegurar que todo quede aplicado correctamente.
 
 ---
 
