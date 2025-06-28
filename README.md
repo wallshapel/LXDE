@@ -12,7 +12,7 @@
 - Instalar las siguientes herramientas:
 
 ```bash
-sudo pacman -S xdotool xorg-xrandr libreoffice-fresh
+sudo pacman -S xdotool xorg-xrandr libreoffice-fresh xautolock xprintidle
 ```
 
 > `libreoffice-fresh` incluye Writer, Calc e Impress.
@@ -30,6 +30,7 @@ sudo pacman -S xdotool xorg-xrandr libreoffice-fresh
 7. Mostrar escritorio con comportamiento toggle real.
 8. Las aplicaciones nuevas se abren automáticamente en el monitor donde se encuentra el cursor.
 9. Accesos nostálgicos vía runner (`Ctrl + R`) para abrir Word, Excel e Impress.
+10. Suspender automáticamente el sistema tras un período de inactividad.
 
 ---
 
@@ -112,9 +113,10 @@ Scripts incluidos:
 - `window_right_half.sh`
 - `smart-launcher.sh`
 - `window_watcher.sh`
-- `word`
-- `excel`
-- `point`
+- `suspend_if_idle.sh`
+- `word.sh`
+- `excel.sh`
+- `point.sh`
 
 Para que `window_watcher.sh` funcione correctamente al inicio del sistema, añade la siguiente línea al archivo:
 
@@ -132,6 +134,34 @@ Este script asegura que **las aplicaciones nuevas se abran centradas en el monit
 
 ---
 
+## 🌙 Suspender automáticamente tras inactividad
+
+Puedes hacer que tu sistema entre en suspensión automáticamente si no hay actividad del usuario.
+
+### 📁 Script necesario
+
+Ubica `suspend_if_idle.sh` en `~/.local/bin` con permisos de ejecución.
+
+### 🛠️ Configuración
+
+Edita:
+
+```bash
+nano ~/.config/lxsession/LXDE/autostart
+```
+
+Agrega al final:
+
+```bash
+@xautolock -time <minutos> -locker ~/.local/bin/suspend_if_idle.sh
+```
+
+> Reemplaza `<minutos>` por el tiempo deseado de inactividad antes de suspender (por ejemplo, 10).
+
+**Importante**: si usas algo como `xscreensaver`, asegúrate de que ninguna configuración tenga un tiempo de espera superior al configurado con `xautolock`, ya que podría **despertar automáticamente al sistema tras la suspensión**.
+
+---
+
 ## 🖱️ Accesos desde Runner (Ctrl + R)
 
 Puedes abrir aplicaciones de LibreOffice usando nombres simples desde el lanzador (runner) de LXDE:
@@ -144,7 +174,7 @@ Puedes abrir aplicaciones de LibreOffice usando nombres simples desde el lanzado
 
 ### 📌 Pasos necesarios
 
-1. Asegúrate de tener los scripts `word`, `excel`, `point` en `~/.local/bin` con permisos de ejecución.
+1. Asegúrate de tener los scripts `word.sh`, `excel.sh`, `point.sh` en `~/.local/bin` con permisos de ejecución.
 2. Verifica que `~/.local/bin` esté en tu `$PATH`:
 
 ```bash
@@ -214,9 +244,10 @@ NoDisplay=true
 │   ├── window_right_half.sh
 │   ├── smart-launcher.sh
 │   ├── window_watcher.sh
-│   ├── word
-│   ├── excel
-│   └── point
+│   ├── suspend_if_idle.sh
+│   ├── word.sh
+│   ├── excel.sh
+│   └── point.sh
 └── ~/.local/share/applications/
     └── show-desktop-toggle.desktop
 ```
@@ -228,7 +259,7 @@ NoDisplay=true
 1. Reemplaza tu archivo `~/.config/openbox/lxde-rc.xml` con el proporcionado.
 2. Copia todos los scripts en `~/.local/bin/` y otórgales permisos de ejecución.
 3. Coloca el archivo `.desktop` en `~/.local/share/applications/`.
-4. Edita `~/.config/lxsession/LXDE/autostart` y añade la línea para `window_watcher.sh`.
+4. Edita `~/.config/lxsession/LXDE/autostart` y añade las líneas necesarias para `window_watcher.sh` y `xautolock`.
 5. Asegúrate de que `~/.local/bin` esté en el `$PATH` (ver sección runner).
 6. Ejecuta:
 
