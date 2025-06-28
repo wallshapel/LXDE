@@ -114,9 +114,9 @@ Scripts incluidos:
 - `smart-launcher.sh`
 - `window_watcher.sh`
 - `suspend_if_idle.sh`
-- `word.sh`
-- `excel.sh`
-- `point.sh`
+- `word`
+- `excel`
+- `point`
 
 Para que `window_watcher.sh` funcione correctamente al inicio del sistema, añade la siguiente línea al archivo:
 
@@ -245,9 +245,9 @@ NoDisplay=true
 │   ├── smart-launcher.sh
 │   ├── window_watcher.sh
 │   ├── suspend_if_idle.sh
-│   ├── word.sh
-│   ├── excel.sh
-│   └── point.sh
+│   ├── word
+│   ├── excel
+│   └── point
 └── ~/.local/share/applications/
     └── show-desktop-toggle.desktop
 ```
