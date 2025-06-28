@@ -9,6 +9,9 @@
 ## 🔧 Requisitos Previos
 
 - Tener instalado un entorno LXDE.
+- Una partición **swap activa**, igual o mayor al tamaño de la RAM.
+- Privilegios de superusuario (`sudo`).
+- Uso de **GRUB** como gestor de arranque.
 - Instalar las siguientes herramientas:
 
 ```bash
@@ -31,6 +34,50 @@ sudo pacman -S xdotool xorg-xrandr libreoffice-fresh xautolock xprintidle
 8. Las aplicaciones nuevas se abren automáticamente en el monitor donde se encuentra el cursor.
 9. Accesos nostálgicos vía runner (`Ctrl + R`) para abrir Word, Excel e Impress.
 10. Suspender automáticamente el sistema tras un período de inactividad.
+11. Habilitación automática de hibernación mediante script.
+
+---
+
+## ❄️ Hibernación en LXDE
+
+Ahora puedes habilitar la hibernación con un solo comando gracias al script `enable_hibernation.sh`.
+
+### 📁 Ubicación y permisos
+
+1. Coloca el archivo `enable_hibernation.sh` en `~/.local/bin/`.
+2. Otorga permisos de ejecución:
+
+```bash
+chmod +x ~/.local/bin/enable_hibernation.sh
+```
+
+3. Ejecuta el script con privilegios de superusuario:
+
+```bash
+sudo ~/.local/bin/enable_hibernation.sh
+```
+
+Este script realiza automáticamente todos los pasos necesarios para habilitar la hibernación: detección de la partición swap, edición de GRUB, regeneración de configuración, modificación del initramfs y reinicio sugerido.
+
+### 🔄 Reiniciar
+
+Una vez finalice el script, reinicia tu equipo para aplicar los cambios:
+
+```bash
+reboot
+```
+
+### 🧪 Probar hibernación
+
+Después de reiniciar, puedes probar la hibernación con:
+
+```bash
+systemctl hibernate
+```
+
+o desde el menú de opciones de apagado de LXDE.
+
+> ⚠️ Si el sistema inicia como si fuera desde cero, la configuración no fue aplicada correctamente. ❗ Si tienes `xscreensaver`, asegúrate de que su tiempo de espera sea menor al configurado por `resume`, ya que podría provocar que el sistema despierte automáticamente.
 
 ---
 
@@ -100,7 +147,7 @@ Ubicar todos los siguientes scripts en:
 Y otorgar permisos de ejecución:
 
 ```bash
-chmod +x ~/.local/bin/*.sh
+chmod +x ~/.local/bin/*
 ```
 
 Scripts incluidos:
@@ -114,6 +161,7 @@ Scripts incluidos:
 - `smart-launcher.sh`
 - `window_watcher.sh`
 - `suspend_if_idle.sh`
+- `enable_hibernation.sh`
 - `word`
 - `excel`
 - `point`
@@ -174,7 +222,7 @@ Puedes abrir aplicaciones de LibreOffice usando nombres simples desde el lanzado
 
 ### 📌 Pasos necesarios
 
-1. Asegúrate de tener los scripts `word.sh`, `excel.sh`, `point.sh` en `~/.local/bin` con permisos de ejecución.
+1. Asegúrate de tener los scripts `word`, `excel`, `point` en `~/.local/bin` con permisos de ejecución.
 2. Verifica que `~/.local/bin` esté en tu `$PATH`:
 
 ```bash
@@ -245,6 +293,7 @@ NoDisplay=true
 │   ├── smart-launcher.sh
 │   ├── window_watcher.sh
 │   ├── suspend_if_idle.sh
+│   ├── enable_hibernation.sh
 │   ├── word
 │   ├── excel
 │   └── point
