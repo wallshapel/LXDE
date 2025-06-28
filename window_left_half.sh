@@ -1,29 +1,50 @@
 #!/bin/bash
 
 WIN_ID=$(xdotool getactivewindow)
+echo "🪟 Ventana activa: $WIN_ID"
+
+# Ejecutar la combinación Super + Home (macro personalizada)
+echo "🪄 Comando Super + Home (tecla por tecla)..."
+xdotool keydown Super
+xdotool key Home
+xdotool keyup Super
 
 # Obtener X,Y absolutos de la ventana
-WIN_X=$(xwininfo -id "$WIN_ID" | awk '/Absolute upper-left X:/ {print $NF}')
-WIN_Y=$(xwininfo -id "$WIN_ID" | awk '/Absolute upper-left Y:/ {print $NF}')
+read WIN_X WIN_Y < <(
+  xwininfo -id "$WIN_ID" |
+    awk '/Absolute upper-left X:/ {x=$NF}
+         /Absolute upper-left Y:/ {y=$NF}
+         END {print x, y}'
+)
+echo "📍 Posición actual de la ventana: X=$WIN_X, Y=$WIN_Y"
 
-# Recorrer monitores para encontrar en cuál está la ventana
+# Recorrer monitores conectados
 while read -r LINE; do
   NAME=$(echo "$LINE" | awk '{print $1}')
-  GEOM=$(echo "$LINE" | awk '{print $3}')
+  GEOM=$(echo "$LINE" | grep -oE '[0-9]+x[0-9]+\+[0-9]+\+[0-9]+')
+
   WIDTH=$(echo "$GEOM" | cut -d'x' -f1)
   HEIGHT=$(echo "$GEOM" | cut -d'x' -f2 | cut -d'+' -f1)
   X_OFF=$(echo "$GEOM" | cut -d'+' -f2)
   Y_OFF=$(echo "$GEOM" | cut -d'+' -f3)
-
   X_END=$((X_OFF + WIDTH))
   Y_END=$((Y_OFF + HEIGHT))
 
+  echo "🖥 Monitor: $NAME"
+  echo "  ↳ Geometría: $WIDTH x $HEIGHT, offset X=$X_OFF, Y=$Y_OFF"
+  echo "  ↳ Rango X: $X_OFF → $X_END, Rango Y: $Y_OFF → $Y_END"
+
   if (( WIN_X >= X_OFF && WIN_X < X_END && WIN_Y >= Y_OFF && WIN_Y < Y_END )); then
-    # Desmaximizar si está max
-    xdotool windowstate --remove MAXIMIZED_VERT --remove MAXIMIZED_HORZ "$WIN_ID"
-    # Mover y redimensionar a mitad izquierda
+    echo "✅ Ventana se encuentra dentro de este monitor ($NAME). Aplicando ajuste a la izquierda..."
+
+    echo "📦 Moviendo a X=$X_OFF, Y=$Y_OFF"
     xdotool windowmove "$WIN_ID" "$X_OFF" "$Y_OFF"
-    xdotool windowsize "$WIN_ID" $((WIDTH / 2)) "$HEIGHT"
+
+    HALF_WIDTH=$((WIDTH / 2))
+    echo "📐 Redimensionando a ancho=$HALF_WIDTH, alto=$HEIGHT"
+    xdotool windowsize "$WIN_ID" "$HALF_WIDTH" "$HEIGHT"
     break
+  else
+    echo "⛔ Ventana no pertenece a este monitor."
   fi
 done < <(xrandr | grep " connected")
