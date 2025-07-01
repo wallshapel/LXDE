@@ -14,6 +14,10 @@
   - `xrandr`
   - `xprintidle`
   - `xautolock`
+  - `ffmpeg`
+  - `pulseaudio`
+  - `xscreensaver`
+  - `bc`
   - `libreoffice` (Writer, Calc, Impress)
 - Tener los directorios `~/.local/bin/` y `~/.local/share/applications/` disponibles.
 - Tener permisos para editar archivos de configuración en `~/.config/lxsession/LXDE/`.
@@ -32,6 +36,7 @@
 - Suspensión automática tras inactividad
 - Las ventanas se abren en el monitor donde se encuentra el cursor
 - **Maximización real** que respeta bordes y comportamiento por pantalla
+- Prevención automática de protector de pantalla si hay audio en reproducción
 
 > ⚠️ Importante: los ajustadores de ventanas y la funcionalidad de maximizar están diseñados para funcionar correctamente **solo si hay un panel por monitor**.
 
@@ -118,6 +123,8 @@ chmod +x ~/.local/bin/*
 - `maximize_window.sh`
 - `smart-launcher.sh`
 - `suspend_if_idle.sh`
+- `audio_screensaver_watcher.sh`
+- `is_audio_active.sh`
 - `word`  ← LibreOffice Writer
 - `excel` ← LibreOffice Calc
 - `point` ← LibreOffice Impress
@@ -228,6 +235,38 @@ Agrega al archivo `~/.config/lxsession/LXDE/autostart`:
 
 ---
 
+## ⛔️ Prevenir protector de pantalla si hay audio
+
+### Scripts
+
+- `audio_screensaver_watcher.sh`
+- `is_audio_active.sh`
+
+### Requiere:
+
+- `ffmpeg`
+- `pulseaudio`
+- `xscreensaver`
+- `bc`
+
+### Configuración
+
+Agrega al final del archivo:
+
+```bash
+~/.config/lxsession/LXDE/autostart
+```
+
+La siguiente línea:
+
+```bash
+@/home/<tu_usuario>/.local/bin/audio_screensaver_watcher.sh
+```
+
+Esto evitará que xscreensaver se active mientras hay audio en reproducción (por ejemplo, al ver YouTube).
+
+---
+
 ## 📁 Estructura del repositorio
 
 ```
@@ -245,6 +284,8 @@ Agrega al archivo `~/.config/lxsession/LXDE/autostart`:
 │   ├── maximize_window.sh
 │   ├── smart-launcher.sh
 │   ├── suspend_if_idle.sh
+│   ├── audio_screensaver_watcher.sh
+│   ├── is_audio_active.sh
 │   ├── word
 │   ├── excel
 │   └── point
