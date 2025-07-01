@@ -1,15 +1,41 @@
 #!/bin/bash
 
+# Constantes de ajuste geométrico
+WIDTH_MARGIN=3                          # Margen horizontal general
+HEIGHT_MARGIN=25                        # Reducción de altura estándar
+WIDTH_REDUCTION_LEFT_PANEL=6            # Reducción de ancho por panel izquierdo
+HEIGHT_REDUCTION_LATERAL=32             # Reducción vertical por panel lateral
+TOP_OFFSET_LATERAL=3                    # Desplazamiento vertical para panel lateral
+
+TOP_PANEL_ADJUST_BROWSER=20             # Ajuste vertical extra (panel arriba + navegador)
+RIGHT_PANEL_HEIGHT_DELTA_BROWSER=20     # Expansión de altura (panel derecho + navegador)
+RIGHT_PANEL_CORRECTION_NONAPP=7         # Corrección vertical menor (panel derecho + no navegador)
+
 WIN_ID=$(xdotool getactivewindow)
 echo "🪟 Ventana activa: $WIN_ID"
 
-# Ejecutar macro Super + Home (opcional)
-echo "🪄 Comando Super + Home..."
+# Detectar clase de ventana
+CLASS_LINE=$(xprop -id "$WIN_ID" WM_CLASS)
+echo "🧾 Línea completa WM_CLASS: $CLASS_LINE"
+
+WIN_CLASS=$(echo "$CLASS_LINE" | awk -F '"' '{print $(NF-1)}' | tr '[:upper:]' '[:lower:]')
+echo "🔍 Clase de ventana: $WIN_CLASS"
+
+IS_BROWSER=false
+if echo "$WIN_CLASS" | grep -qE 'chrome|brave|firefox|tor|web|browser|navigator'; then
+  IS_BROWSER=true
+  echo "🌐 Aplicación identificada como navegador"
+else
+  echo "🧱 Aplicación identificada como no-navegador"
+fi
+
+# Macro Super + Home
+echo "🪄 Ejecutando Super + Home..."
 xdotool keydown Super
 xdotool key Home
 xdotool keyup Super
 
-# Obtener posición actual de la ventana
+# Posición actual de la ventana
 read WIN_X WIN_Y < <(
   xwininfo -id "$WIN_ID" |
     awk '/Absolute upper-left X:/ {x=$NF}
@@ -17,7 +43,7 @@ read WIN_X WIN_Y < <(
          END {print x, y}'
 )
 
-# Buscar monitor al que pertenece la ventana
+# Monitor al que pertenece
 while read -r LINE; do
   NAME=$(echo "$LINE" | awk '{print $1}')
   GEOM=$(echo "$LINE" | grep -oE '[0-9]+x[0-9]+\+[0-9]+\+[0-9]+')
@@ -26,41 +52,20 @@ while read -r LINE; do
   HEIGHT=$(echo "$GEOM" | cut -d'x' -f2 | cut -d'+' -f1)
   X_OFF=$(echo "$GEOM" | cut -d'+' -f2)
   Y_OFF=$(echo "$GEOM" | cut -d'+' -f3)
-  X_END=$((X_OFF + WIDTH))
-  Y_END=$((Y_OFF + HEIGHT))
 
-  if (( WIN_X >= X_OFF && WIN_X < X_END && WIN_Y >= Y_OFF && WIN_Y < Y_END )); then
-    echo "✅ Ventana se encuentra en monitor $NAME"
+  if (( WIN_X >= X_OFF && WIN_X < X_OFF + WIDTH && WIN_Y >= Y_OFF && WIN_Y < Y_OFF + HEIGHT )); then
+    echo "✅ Ventana en monitor: $NAME"
 
-    # Obtener índice del monitor (0, 1, etc.)
     MONITOR_INDEX=$(xrandr --listmonitors | awk -v name="$NAME" '$0 ~ name {print $1}' | tr -d ':')
-    echo "🔢 Índice del monitor: $MONITOR_INDEX"
 
-    # Buscar archivo de panel correspondiente
-    PANEL_DIR="$HOME/.config/lxpanel/LXDE/panels"
-    PANEL_FILE=""
-    for file in "$PANEL_DIR"/*; do
-      MON=$(awk -F '=' '/monitor=/ {print $2}' "$file")
-      if [[ "$MON" == "$MONITOR_INDEX" ]]; then
-        PANEL_FILE="$file"
-        break
-      fi
-    done
+    PANEL_FILE=$(grep -l "monitor=$MONITOR_INDEX" "$HOME/.config/lxpanel/LXDE/panels"/*)
+    PANEL_THICKNESS=$(awk -F '=' '/height=/ {print $2}' "$PANEL_FILE")
+    PANEL_EDGE=$(awk -F '=' '/edge=/ {print $2}' "$PANEL_FILE" | tr -d '[:space:]')
 
-    # Leer altura y borde del panel
-    PANEL_HEIGHT=0
-    PANEL_EDGE=""
-    if [[ -n "$PANEL_FILE" ]]; then
-      PANEL_HEIGHT=$(awk -F '=' '/height=/ {print $2}' "$PANEL_FILE")
-      PANEL_EDGE=$(awk -F '=' '/edge=/ {print $2}' "$PANEL_FILE")
-      echo "📄 Archivo de panel: $(basename "$PANEL_FILE")"
-      echo "📏 Altura del panel: $PANEL_HEIGHT"
-      echo "📐 Posición del panel: $PANEL_EDGE"
-    else
-      echo "⚠ No se encontró archivo de panel para el monitor."
-    fi
+    echo "📄 Panel: $(basename "$PANEL_FILE")"
+    echo "📏 Grosor: $PANEL_THICKNESS"
+    echo "📐 Borde: $PANEL_EDGE"
 
-    # Ajustes por posición del panel
     ADJUSTED_WIDTH=$WIDTH
     ADJUSTED_HEIGHT=$HEIGHT
     FINAL_WIDTH=$WIDTH
@@ -70,39 +75,59 @@ while read -r LINE; do
 
     case "$PANEL_EDGE" in
       bottom)
-        ADJUSTED_HEIGHT=$((HEIGHT - PANEL_HEIGHT))
+        FINAL_WIDTH=$((FINAL_WIDTH - WIDTH_MARGIN))
+        ADJUSTED_HEIGHT=$((HEIGHT - PANEL_THICKNESS))
         NEW_Y=$((Y_OFF + ADJUSTED_HEIGHT / 2))
-        FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2))
-        echo "🔽 Panel inferior: altura visible $ADJUSTED_HEIGHT, Y inicio $NEW_Y"
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2))
+        else
+          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2 - HEIGHT_MARGIN))
+        fi
+        echo "▾ Panel inferior"
         ;;
       top)
-        ADJUSTED_HEIGHT=$((HEIGHT - PANEL_HEIGHT))
-        NEW_Y=$((Y_OFF + PANEL_HEIGHT + ADJUSTED_HEIGHT / 2))
-        FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2))
-        echo "🔼 Panel superior: altura visible $ADJUSTED_HEIGHT, Y inicio $NEW_Y"
+        FINAL_WIDTH=$((FINAL_WIDTH - WIDTH_MARGIN))
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          ADJUSTED_HEIGHT=$((HEIGHT - PANEL_THICKNESS + TOP_PANEL_ADJUST_BROWSER))
+          NEW_Y=$((Y_OFF + PANEL_THICKNESS + ADJUSTED_HEIGHT / 2 - TOP_PANEL_ADJUST_BROWSER - 3))
+          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2 + 3))
+        else
+          ADJUSTED_HEIGHT=$((HEIGHT - PANEL_THICKNESS))
+          NEW_Y=$((Y_OFF + PANEL_THICKNESS + ADJUSTED_HEIGHT / 2))
+          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2 - HEIGHT_MARGIN))
+        fi
+        echo "▴ Panel superior"
         ;;
       left)
-        ADJUSTED_WIDTH=$((WIDTH - PANEL_HEIGHT))
-        NEW_X=$((X_OFF + PANEL_HEIGHT))
-        FINAL_WIDTH=$ADJUSTED_WIDTH
-        NEW_Y=$((Y_OFF + HEIGHT / 2))
-        FINAL_HEIGHT=$((HEIGHT / 2))
-        echo "◀️ Panel izquierdo: ancho visible $ADJUSTED_WIDTH, X inicio $NEW_X"
-        echo "🟢 Altura ajustada: mitad menos 25px → alto=$FINAL_HEIGHT"
+        ADJUSTED_WIDTH=$((WIDTH - PANEL_THICKNESS))
+        FINAL_WIDTH=$((ADJUSTED_WIDTH - WIDTH_REDUCTION_LEFT_PANEL))
+        NEW_X=$((X_OFF + PANEL_THICKNESS))
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          NEW_Y=$((Y_OFF + HEIGHT / 2 + TOP_OFFSET_LATERAL))
+          FINAL_HEIGHT=$((HEIGHT / 2))
+        else
+          NEW_Y=$((Y_OFF + HEIGHT / 2 + TOP_OFFSET_LATERAL))
+          FINAL_HEIGHT=$((HEIGHT / 2 - HEIGHT_REDUCTION_LATERAL))
+        fi
+        echo "◂ Panel izquierdo"
         ;;
       right)
-        ADJUSTED_WIDTH=$((WIDTH - PANEL_HEIGHT))
+        ADJUSTED_WIDTH=$((WIDTH - PANEL_THICKNESS))
         FINAL_WIDTH=$ADJUSTED_WIDTH
-        NEW_Y=$((Y_OFF + HEIGHT / 2))
-        FINAL_HEIGHT=$((HEIGHT / 2))
-        echo "▶️ Panel derecho: ancho visible $ADJUSTED_WIDTH, X inicio $NEW_X"
-        echo "🟢 Altura ajustada: mitad menos 25px → alto=$FINAL_HEIGHT"
+        NEW_X=$X_OFF
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          NEW_Y=$((Y_OFF + HEIGHT / 2 - RIGHT_PANEL_HEIGHT_DELTA_BROWSER))
+          FINAL_HEIGHT=$((HEIGHT / 2 + RIGHT_PANEL_HEIGHT_DELTA_BROWSER))
+        else
+          NEW_Y=$((Y_OFF + HEIGHT / 2 + TOP_OFFSET_LATERAL - RIGHT_PANEL_CORRECTION_NONAPP))
+          FINAL_HEIGHT=$((HEIGHT / 2 - HEIGHT_REDUCTION_LATERAL + RIGHT_PANEL_CORRECTION_NONAPP))
+        fi
+        echo "▸ Panel derecho"
         ;;
     esac
 
-
-    echo "📦 Moviendo ventana a X=$NEW_X, Y=$NEW_Y"
-    echo "📐 Redimensionando a ancho=$FINAL_WIDTH, alto=$FINAL_HEIGHT"
+    echo "📦 Posición final: X=$NEW_X, Y=$NEW_Y"
+    echo "📐 Tamaño final: ancho=$FINAL_WIDTH, alto=$FINAL_HEIGHT"
     xdotool windowstate --remove MAXIMIZED_VERT --remove MAXIMIZED_HORZ "$WIN_ID"
     xdotool windowmove "$WIN_ID" "$NEW_X" "$NEW_Y"
     xdotool windowsize "$WIN_ID" "$FINAL_WIDTH" "$FINAL_HEIGHT"

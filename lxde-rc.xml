@@ -393,7 +393,9 @@ Copy the file to $HOME/.config/openbox/ instead. -->
       </keybind>
       <!-- Maximize window -->
       <keybind key="Super-Page_Up">
-        <action name="MaximizeFull"/>
+        <action name="Execute">
+          <command>~/.local/bin/maximize_window.sh</command>
+        </action>
       </keybind>
       <!-- Minimize window -->
       <keybind key="Super-Page_Down">
