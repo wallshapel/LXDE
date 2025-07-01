@@ -33,10 +33,10 @@
   - Lanzadores rápidos para calculadora y terminal
 - Botón personalizado para mostrar el escritorio (toggle)
 - Scripts para lanzar LibreOffice desde el runner (`Ctrl + R`) con palabras clave nostálgicas
-- Suspensión automática tras inactividad
+- Suspensión automática tras inactividad **solo si no hay audio reproduciéndose**
+- Prevención del protector de pantalla mientras hay audio activo
 - Las ventanas se abren en el monitor donde se encuentra el cursor
 - **Maximización real** que respeta bordes y comportamiento por pantalla
-- Prevención automática de protector de pantalla si hay audio en reproducción
 
 > ⚠️ Importante: los ajustadores de ventanas y la funcionalidad de maximizar están diseñados para funcionar correctamente **solo si hay un panel por monitor**.
 
@@ -46,8 +46,8 @@
 
 | Acción                      | Atajo            |
 | --------------------------- | ---------------- |
-| 🗕 Minimizar ventana activa | `Super` + `PgDn` |
-| 🗖 Maximizar ventana activa | `Super` + `PgUp` |
+| 🗅 Minimizar ventana activa | `Super` + `PgDn` |
+| 🗆 Maximizar ventana activa | `Super` + `PgUp` |
 | 🔳 Restaurar ventana        | `Super` + `Home` |
 
 ---
@@ -80,7 +80,7 @@
 
 | Aplicación     | Atajo              |
 | -------------- | ------------------ |
-| 🧮 Calculadora | `Ctrl` + `Alt` + C |
+| 🧶 Calculadora | `Ctrl` + `Alt` + C |
 | 💪 Terminal    | `Ctrl` + `Alt` + T |
 
 ---
@@ -125,9 +125,9 @@ chmod +x ~/.local/bin/*
 - `suspend_if_idle.sh`
 - `audio_screensaver_watcher.sh`
 - `is_audio_active.sh`
-- `word`  ← LibreOffice Writer
-- `excel` ← LibreOffice Calc
-- `point` ← LibreOffice Impress
+- `word`  → LibreOffice Writer
+- `excel` → LibreOffice Calc
+- `point` → LibreOffice Impress
 
 > Asegúrate de que `~/.local/bin` esté en tu `PATH`. Añádelo en tu `~/.bashrc` y `~/.profile` si es necesario.
 
@@ -139,7 +139,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile
 
 ---
 
-## 🖥️ Mostrar Escritorio (toggle real)
+## 💻 Mostrar Escritorio (toggle real)
 
 ### Archivo
 
@@ -195,9 +195,11 @@ La siguiente línea (ajustando minutos):
 
 > Asegúrate de que ningún protector de pantalla (como xscreensaver) tenga un tiempo superior o se puede interrumpir la suspensión.
 
+> ⚠️ Este script ahora **solo activa la suspensión si no hay actividad y no hay audio en reproducción**. Ambas condiciones deben cumplirse.
+
 ---
 
-## 🖱️ Abrir ventanas donde esté el cursor
+## 🚡 Abrir ventanas donde esté el cursor
 
 ### Scripts
 
@@ -218,7 +220,7 @@ openbox --reconfigure
 
 ---
 
-## 🗖 Maximización real
+## 🔖 Maximización real
 
 Evita que las ventanas se superpongan al panel cuando se maximizan.
 
@@ -263,7 +265,7 @@ La siguiente línea:
 @/home/<tu_usuario>/.local/bin/audio_screensaver_watcher.sh
 ```
 
-Esto evitará que xscreensaver se active mientras hay audio en reproducción (por ejemplo, al ver YouTube).
+> Este sistema evita tanto que se active el protector de pantalla **como que se suspenda el sistema** si hay audio en reproducción.
 
 ---
 

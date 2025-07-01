@@ -1,9 +1,17 @@
 #!/bin/bash
 
-# Espera pasiva para dar tiempo a que el screensaver se estabilice
+# Espera pasiva para dar tiempo al screensaver y al audio
 sleep 5
 
-# Suspende solo si sigue sin actividad
+# Ruta al script que detecta audio
+AUDIO_CHECK="$HOME/.local/bin/is_audio_active.sh"
+
+# Comprobar inactividad y silencio
 if [[ -z "$(xprintidle)" || "$(xprintidle)" -gt 60000 ]]; then
-    systemctl suspend
+    if ! "$AUDIO_CHECK" > /dev/null; then
+        echo "🛌 Sin actividad ni audio → suspendiendo..."
+        systemctl suspend
+    else
+        echo "🎵 Hay audio activo → NO suspende"
+    fi
 fi
