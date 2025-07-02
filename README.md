@@ -36,9 +36,8 @@
 - Suspensión automática tras inactividad **solo si no hay audio reproduciéndose**
 - Prevención del protector de pantalla mientras hay audio activo
 - Las ventanas se abren en el monitor donde se encuentra el cursor
-- **Maximización real** que respeta bordes y comportamiento por pantalla
 
-> ⚠️ Importante: los ajustadores de ventanas y la funcionalidad de maximizar están diseñados para funcionar correctamente **solo si hay un panel por monitor**.
+> ⚠️ Importante: los ajustadores de ventanas están diseñados para funcionar correctamente **solo si hay un panel por monitor**.
 
 ---
 
@@ -119,8 +118,6 @@ chmod +x ~/.local/bin/*
 - `window_bottom_half.sh`
 - `window_left_half.sh`
 - `window_right_half.sh`
-- `maximize_watcher.sh`
-- `maximize_window.sh`
 - `smart-launcher.sh`
 - `suspend_if_idle.sh`
 - `audio_screensaver_watcher.sh`
@@ -220,23 +217,6 @@ openbox --reconfigure
 
 ---
 
-## 🔖 Maximización real
-
-Evita que las ventanas se superpongan al panel cuando se maximizan.
-
-### Scripts
-
-- `maximize_watcher.sh`
-- `maximize_window.sh`
-
-Agrega al archivo `~/.config/lxsession/LXDE/autostart`:
-
-```bash
-@/home/<tu_usuario>/.local/bin/maximize_watcher.sh
-```
-
----
-
 ## ⛔️ Prevenir protector de pantalla si hay audio
 
 ### Scripts
@@ -282,8 +262,6 @@ La siguiente línea:
 │   ├── window_bottom_half.sh
 │   ├── window_left_half.sh
 │   ├── window_right_half.sh
-│   ├── maximize_watcher.sh
-│   ├── maximize_window.sh
 │   ├── smart-launcher.sh
 │   ├── suspend_if_idle.sh
 │   ├── audio_screensaver_watcher.sh
