@@ -36,6 +36,7 @@
 - Suspensión automática tras inactividad **solo si no hay audio reproduciéndose**
 - Prevención del protector de pantalla mientras hay audio activo
 - Las ventanas se abren en el monitor donde se encuentra el cursor
+- Prevención del despertar automático tras suspensión desactivando el wake-up por mouse
 
 > ⚠️ Importante: los ajustadores de ventanas están diseñados para funcionar correctamente **solo si hay un panel por monitor**.
 
@@ -246,6 +247,75 @@ La siguiente línea:
 ```
 
 > Este sistema evita tanto que se active el protector de pantalla **como que se suspenda el sistema** si hay audio en reproducción.
+
+---
+
+## 🔌 Evitar que el mouse despierte el equipo tras la suspensión
+
+En algunos sistemas LXDE, al suspender el equipo este se reanuda de inmediato. Esto suele deberse a que el mouse tiene activado el permiso de "wake-up".
+
+### 1. Verifica los dispositivos con wake-up habilitado
+
+```bash
+cat /proc/acpi/wakeup | grep enabled
+```
+
+Busca líneas como:
+
+```
+PTXH      S4    *enabled   pci:0000:02:00.0
+```
+
+### 2. Verifica qué es ese dispositivo
+
+```bash
+lspci -nn | grep 02:00.0
+```
+
+(Reemplaza `02:00.0` por el que aparezca en tu caso)
+
+### 3. Desactiva el wake-up
+
+```bash
+echo PTXH | sudo tee /proc/acpi/wakeup
+```
+
+(Reemplaza `PTXH` con lo que aparezca en tu salida)
+
+Puedes verificar que ahora diga `*disabled`:
+
+```bash
+cat /proc/acpi/wakeup | grep PTXH
+```
+
+### 4. Que el cambio sea permanente
+
+Crea el archivo:
+
+```bash
+sudo nano /etc/systemd/system/disable-wakeup.service
+```
+
+Y agrega:
+
+```ini
+[Unit]
+Description=Disable wakeup for PTXH
+After=suspend.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "echo 'PTXH' > /proc/acpi/wakeup"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Guarda con `Ctrl + O`, sal con `Ctrl + X`, y habilita el servicio:
+
+```bash
+sudo systemctl enable disable-wakeup.service
+```
 
 ---
 
