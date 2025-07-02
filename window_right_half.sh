@@ -1,24 +1,41 @@
 #!/bin/bash
 
+# Constantes de ajuste geométrico
+RIGHT_MARGIN=6 # Reducción del ancho total para que no se vea los bordes en el siguiente monitor
+
 WIN_ID=$(xdotool getactivewindow)
 echo "🪟 Ventana activa: $WIN_ID"
 
-# Ejecutar la combinación Super + Home (macro personalizada)
-echo "🪄 Comando Super + Home (tecla por tecla)..."
+# Detectar clase de ventana
+CLASS_LINE=$(xprop -id "$WIN_ID" WM_CLASS)
+echo "🧾 Línea completa WM_CLASS: $CLASS_LINE"
+
+WIN_CLASS=$(echo "$CLASS_LINE" | awk -F '"' '{print $(NF-1)}' | tr '[:upper:]' '[:lower:]')
+echo "🔍 Clase de ventana: $WIN_CLASS"
+
+IS_BROWSER=false
+if echo "$WIN_CLASS" | grep -qE 'chrome|brave|firefox|tor|web|browser|navigator'; then
+  IS_BROWSER=true
+  echo "🌐 Aplicación identificada como navegador"
+else
+  echo "🧱 Aplicación identificada como no-navegador"
+fi
+
+# Macro Super + Home
+echo "🪄 Ejecutando Super + Home..."
 xdotool keydown Super
 xdotool key Home
 xdotool keyup Super
 
-# Obtener X,Y absolutos de la ventana
+# Posición actual de la ventana
 read WIN_X WIN_Y < <(
   xwininfo -id "$WIN_ID" |
     awk '/Absolute upper-left X:/ {x=$NF}
          /Absolute upper-left Y:/ {y=$NF}
          END {print x, y}'
 )
-echo "📍 Posición actual de la ventana: X=$WIN_X, Y=$WIN_Y"
 
-# Recorrer monitores conectados
+# Recorrer monitores
 while read -r LINE; do
   NAME=$(echo "$LINE" | awk '{print $1}')
   GEOM=$(echo "$LINE" | grep -oE '[0-9]+x[0-9]+\+[0-9]+\+[0-9]+')
@@ -27,25 +44,70 @@ while read -r LINE; do
   HEIGHT=$(echo "$GEOM" | cut -d'x' -f2 | cut -d'+' -f1)
   X_OFF=$(echo "$GEOM" | cut -d'+' -f2)
   Y_OFF=$(echo "$GEOM" | cut -d'+' -f3)
-  X_END=$((X_OFF + WIDTH))
-  Y_END=$((Y_OFF + HEIGHT))
 
-  echo "🖥 Monitor: $NAME"
-  echo "  ↳ Geometría: $WIDTH x $HEIGHT, offset X=$X_OFF, Y=$Y_OFF"
-  echo "  ↳ Rango X: $X_OFF → $X_END, Rango Y: $Y_OFF → $Y_END"
+  if (( WIN_X >= X_OFF && WIN_X < X_OFF + WIDTH && WIN_Y >= Y_OFF && WIN_Y < Y_OFF + HEIGHT )); then
+    echo "✅ Ventana en monitor: $NAME"
 
-  if (( WIN_X >= X_OFF && WIN_X < X_END && WIN_Y >= Y_OFF && WIN_Y < Y_END )); then
-    echo "✅ Ventana se encuentra dentro de este monitor ($NAME). Aplicando ajuste a la derecha..."
+    MONITOR_INDEX=$(xrandr --listmonitors | awk -v name="$NAME" '$0 ~ name {print $1}' | tr -d ':')
 
-    HALF_WIDTH=$((WIDTH / 2))
-    NEW_X=$((X_OFF + HALF_WIDTH))
+    PANEL_FILE=$(grep -l "monitor=$MONITOR_INDEX" "$HOME/.config/lxpanel/LXDE/panels"/*)
+    PANEL_THICKNESS=$(awk -F '=' '/height=/ {print $2}' "$PANEL_FILE")
+    PANEL_EDGE=$(awk -F '=' '/edge=/ {print $2}' "$PANEL_FILE" | tr -d '[:space:]')
 
-    echo "📦 Moviendo a X=$NEW_X, Y=$Y_OFF"
-    echo "📐 Redimensionando a ancho=$HALF_WIDTH, alto=$HEIGHT"
-    xdotool windowmove "$WIN_ID" "$NEW_X" "$Y_OFF"
-    xdotool windowsize "$WIN_ID" "$HALF_WIDTH" "$HEIGHT"
+    echo "📄 Panel: $(basename "$PANEL_FILE")"
+    echo "📏 Grosor: $PANEL_THICKNESS"
+    echo "📐 Borde: $PANEL_EDGE"
+
+    NEW_X=$((X_OFF + WIDTH / 2))
+    NEW_Y=$Y_OFF
+    FINAL_WIDTH=$((WIDTH / 2))
+    FINAL_HEIGHT=$HEIGHT
+
+    case "$PANEL_EDGE" in
+      bottom)
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          FINAL_HEIGHT=$((FINAL_HEIGHT - PANEL_THICKNESS))
+        else
+          FINAL_WIDTH=$(((WIDTH / 2) - RIGHT_MARGIN))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - PANEL_THICKNESS - 23))
+        fi
+        ;;
+      top)
+        NEW_Y=$((NEW_Y + PANEL_THICKNESS))
+        if [[ "$IS_BROWSER" == "true" ]]; then          
+          FINAL_HEIGHT=$((FINAL_HEIGHT - PANEL_THICKNESS))
+        else
+          FINAL_WIDTH=$(((WIDTH / 2) - RIGHT_MARGIN))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - PANEL_THICKNESS - 23 ))
+        fi
+        ;;
+      left)
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          NEW_X=$(((WIDTH + PANEL_THICKNESS) / 2))
+          FINAL_WIDTH=$(((WIDTH - PANEL_THICKNESS) / 2))
+        else
+          NEW_X=$(((WIDTH + PANEL_THICKNESS - RIGHT_MARGIN) / 2))
+          FINAL_WIDTH=$(((WIDTH - PANEL_THICKNESS - RIGHT_MARGIN) / 2))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - 23))
+        fi
+        ;;
+      right)
+        NEW_X=$(((WIDTH - PANEL_THICKNESS) / 2))
+        if [[ "$IS_BROWSER" == "true" ]]; then
+          FINAL_WIDTH=$(((WIDTH - PANEL_THICKNESS) / 2))
+        else
+          NEW_X=$(((WIDTH - PANEL_THICKNESS - RIGHT_MARGIN) / 2))
+          FINAL_WIDTH=$(((WIDTH - PANEL_THICKNESS - RIGHT_MARGIN) / 2))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - 23))
+        fi
+        ;;
+    esac
+
+    echo "📦 Posición final: X=$NEW_X, Y=$NEW_Y"
+    echo "📐 Tamaño final: ancho=$FINAL_WIDTH, alto=$FINAL_HEIGHT"
+
+    xdotool windowmove "$WIN_ID" "$NEW_X" "$NEW_Y"
+    xdotool windowsize "$WIN_ID" "$FINAL_WIDTH" "$FINAL_HEIGHT"
     break
-  else
-    echo "⛔ Ventana no pertenece a este monitor."
   fi
 done < <(xrandr | grep " connected")

@@ -1,15 +1,7 @@
 #!/bin/bash
 
 # Constantes de ajuste geométrico
-WIDTH_MARGIN=3                          # Margen horizontal general
-HEIGHT_MARGIN=25                        # Reducción de altura estándar
-WIDTH_REDUCTION_LEFT_PANEL=6            # Reducción de ancho por panel izquierdo
-HEIGHT_REDUCTION_LATERAL=32             # Reducción vertical por panel lateral
-TOP_OFFSET_LATERAL=3                    # Desplazamiento vertical para panel lateral
-
-TOP_PANEL_ADJUST_BROWSER=20             # Ajuste vertical extra (panel arriba + navegador)
-RIGHT_PANEL_HEIGHT_DELTA_BROWSER=20     # Expansión de altura (panel derecho + navegador)
-RIGHT_PANEL_CORRECTION_NONAPP=7         # Corrección vertical menor (panel derecho + no navegador)
+RIGHT_MARGIN=6 # Reducción del ancho total para que no se vea los bordes en el siguiente monitor
 
 WIN_ID=$(xdotool getactivewindow)
 echo "🪟 Ventana activa: $WIN_ID"
@@ -66,69 +58,53 @@ while read -r LINE; do
     echo "📏 Grosor: $PANEL_THICKNESS"
     echo "📐 Borde: $PANEL_EDGE"
 
-    ADJUSTED_WIDTH=$WIDTH
-    ADJUSTED_HEIGHT=$HEIGHT
-    FINAL_WIDTH=$WIDTH
-    FINAL_HEIGHT=$((HEIGHT / 2))
     NEW_X=$X_OFF
     NEW_Y=$((Y_OFF + HEIGHT / 2))
+    FINAL_WIDTH=$WIDTH
+    FINAL_HEIGHT=$((HEIGHT / 2))
 
     case "$PANEL_EDGE" in
-      bottom)
-        FINAL_WIDTH=$((FINAL_WIDTH - WIDTH_MARGIN))
-        ADJUSTED_HEIGHT=$((HEIGHT - PANEL_THICKNESS))
-        NEW_Y=$((Y_OFF + ADJUSTED_HEIGHT / 2))
+      bottom)        
+        NEW_Y=$(((Y_OFF + HEIGHT - PANEL_THICKNESS) / 2))
         if [[ "$IS_BROWSER" == "true" ]]; then
-          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2))
+          FINAL_HEIGHT=$(((HEIGHT - PANEL_THICKNESS) / 2))
         else
-          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2 - HEIGHT_MARGIN))
+          FINAL_WIDTH=$((FINAL_WIDTH - RIGHT_MARGIN))
+          FINAL_HEIGHT=$(((HEIGHT - PANEL_THICKNESS - 43) / 2))
         fi
-        echo "▾ Panel inferior"
         ;;
       top)
-        FINAL_WIDTH=$((FINAL_WIDTH - WIDTH_MARGIN))
+        NEW_Y=$(((HEIGHT + PANEL_THICKNESS) / 2))
         if [[ "$IS_BROWSER" == "true" ]]; then
-          ADJUSTED_HEIGHT=$((HEIGHT - PANEL_THICKNESS + TOP_PANEL_ADJUST_BROWSER))
-          NEW_Y=$((Y_OFF + PANEL_THICKNESS + ADJUSTED_HEIGHT / 2 - TOP_PANEL_ADJUST_BROWSER - 3))
-          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2 + 3))
+          FINAL_HEIGHT=$(((HEIGHT - PANEL_THICKNESS) / 2))
         else
-          ADJUSTED_HEIGHT=$((HEIGHT - PANEL_THICKNESS))
-          NEW_Y=$((Y_OFF + PANEL_THICKNESS + ADJUSTED_HEIGHT / 2))
-          FINAL_HEIGHT=$((ADJUSTED_HEIGHT / 2 - HEIGHT_MARGIN))
+          FINAL_WIDTH=$((FINAL_WIDTH - RIGHT_MARGIN))
+          FINAL_HEIGHT=$(((HEIGHT - PANEL_THICKNESS - 43) / 2))
         fi
-        echo "▴ Panel superior"
         ;;
       left)
-        ADJUSTED_WIDTH=$((WIDTH - PANEL_THICKNESS))
-        FINAL_WIDTH=$((ADJUSTED_WIDTH - WIDTH_REDUCTION_LEFT_PANEL))
-        NEW_X=$((X_OFF + PANEL_THICKNESS))
+        NEW_X=$((NEW_X + PANEL_THICKNESS))        
         if [[ "$IS_BROWSER" == "true" ]]; then
-          NEW_Y=$((Y_OFF + HEIGHT / 2 + TOP_OFFSET_LATERAL))
-          FINAL_HEIGHT=$((HEIGHT / 2))
+          FINAL_WIDTH=$((WIDTH - PANEL_THICKNESS))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - 3))  
         else
-          NEW_Y=$((Y_OFF + HEIGHT / 2 + TOP_OFFSET_LATERAL))
-          FINAL_HEIGHT=$((HEIGHT / 2 - HEIGHT_REDUCTION_LATERAL))
+          FINAL_WIDTH=$((WIDTH - PANEL_THICKNESS - RIGHT_MARGIN))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - 23))
         fi
-        echo "◂ Panel izquierdo"
         ;;
       right)
-        ADJUSTED_WIDTH=$((WIDTH - PANEL_THICKNESS))
-        FINAL_WIDTH=$ADJUSTED_WIDTH
-        NEW_X=$X_OFF
+        FINAL_WIDTH=$((WIDTH - PANEL_THICKNESS))
         if [[ "$IS_BROWSER" == "true" ]]; then
-          NEW_Y=$((Y_OFF + HEIGHT / 2 - RIGHT_PANEL_HEIGHT_DELTA_BROWSER))
-          FINAL_HEIGHT=$((HEIGHT / 2 + RIGHT_PANEL_HEIGHT_DELTA_BROWSER))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - 3))  
         else
-          NEW_Y=$((Y_OFF + HEIGHT / 2 + TOP_OFFSET_LATERAL - RIGHT_PANEL_CORRECTION_NONAPP))
-          FINAL_HEIGHT=$((HEIGHT / 2 - HEIGHT_REDUCTION_LATERAL + RIGHT_PANEL_CORRECTION_NONAPP))
+          FINAL_HEIGHT=$((FINAL_HEIGHT - 23))
         fi
-        echo "▸ Panel derecho"
         ;;
     esac
 
     echo "📦 Posición final: X=$NEW_X, Y=$NEW_Y"
     echo "📐 Tamaño final: ancho=$FINAL_WIDTH, alto=$FINAL_HEIGHT"
-    xdotool windowstate --remove MAXIMIZED_VERT --remove MAXIMIZED_HORZ "$WIN_ID"
+
     xdotool windowmove "$WIN_ID" "$NEW_X" "$NEW_Y"
     xdotool windowsize "$WIN_ID" "$FINAL_WIDTH" "$FINAL_HEIGHT"
     break
