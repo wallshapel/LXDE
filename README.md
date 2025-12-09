@@ -127,13 +127,15 @@ chmod +x ~/.local/bin/*
 - `excel` → LibreOffice Calc
 - `point` → LibreOffice Impress
 
-> Asegúrate de que `~/.local/bin` esté en tu `PATH`. Añádelo en tu `~/.bashrc` y `~/.profile` si es necesario.
+> Asegúrate de que `~/.local/bin` esté en tu `PATH`. Añádelo en tu `~/.bashrc`, `~/.profile` y `~/.xprofile` de ser necesario.
 
 ```bash
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile
 ```
+
+si `~/.profile` o `~/.xprofile` no existen, crealos!`
 
 ---
 
