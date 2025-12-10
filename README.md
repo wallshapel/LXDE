@@ -11,6 +11,7 @@
 - Tener instalada una distribución Linux con entorno LXDE.
 - Tener instalados los siguientes paquetes:
   - `xdotool`
+  - `xwininfo`
   - `xrandr`
   - `xprintidle`
   - `xautolock`
