@@ -1,28 +1,33 @@
 #!/bin/bash
 
-# Ruta absoluta del script de detección
-CHECK_SCRIPT="$HOME/.local/bin/is_audio_active.sh"
+# Script que detecta audio y evita que se active el protector de pantalla
+# sin deshabilitarlo permanentemente, permitiendo que funcione cuando no hay audio.
 
-# Último estado conocido
-LAST_STATE=""
+CHECK_SCRIPT="$HOME/.local/bin/is_audio_active.sh"
+LAST_STATE="INACTIVE"
 
 while true; do
-    # Ejecutar el script
-    "$CHECK_SCRIPT" > /dev/null
+
+    # Ejecuta el detector y oculta su salida
+    "$CHECK_SCRIPT" > /dev/null 2>&1
     STATUS=$?
 
-    # Solo si hay audio activo y no lo sabíamos antes
-    if [[ $STATUS -eq 0 && "$LAST_STATE" != "ACTIVE" ]]; then
-        xscreensaver-command -deactivate > /dev/null
-        echo "⏸️  Audio activo: protector desactivado"
-        LAST_STATE="ACTIVE"
+    if [[ $STATUS -eq 0 ]]; then
+        # Hay audio → enviar "deactivate" continuamente
+        xscreensaver-command -deactivate > /dev/null 2>&1
 
-    # Si no hay audio y antes lo había
-    elif [[ $STATUS -ne 0 && "$LAST_STATE" != "INACTIVE" ]]; then
-        echo "▶️  Silencio: protector en estado normal"
-        LAST_STATE="INACTIVE"
+        if [[ "$LAST_STATE" != "ACTIVE" ]]; then
+            echo "⏸️  Audio activo: salvapantallas inhibido"
+            LAST_STATE="ACTIVE"
+        fi
+
+    else
+        # No hay audio → permitir que el salvapantallas se active normalmente
+        if [[ "$LAST_STATE" != "INACTIVE" ]]; then
+            echo "▶️  Silencio: salvapantallas permitido"
+            LAST_STATE="INACTIVE"
+        fi
     fi
 
-    # Espera medio segundo
     sleep 0.5
 done
